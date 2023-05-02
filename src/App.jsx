@@ -1,35 +1,59 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useContext } from 'react';
+import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
+import RecipesFeed from './pages/home/RecipesFeed';
+import FollowingFeed from './pages/home/FollowingFeed';
+import Register from './pages/auth/Register';
+import Login from './pages/auth/Login';
+import {AuthContext} from './context/AuthProvider';
+import MainLayout from './Layouts/MainLayout';
+import HomeLayout from './Layouts/HomeLayout';
+import ProfileLayout from './Layouts/ProfileLayout';
+import FollowingList from './pages/profile/FollowingList';
+import FollowerList from './pages/profile/FollowerList'; 
+import RecipeDetail from './pages/recipes/RecipeDetail';
+import EditRecipe from './pages/recipes/EditRecipe';
+import Settings from './pages/Settings/Settings';
 
-function App() {
-  const [count, setCount] = useState(0)
+function App() { 
+  const { loggedIn } = useContext(AuthContext);
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
+    <Router>
+      <Routes>
+        <Route 
+          path='/' 
+          element={loggedIn ? <MainLayout /> : <Navigate to='/login' />}
+        >
+          <Route 
+            path='' 
+            element={loggedIn ? <HomeLayout /> : <Navigate to='/login' />}
+          >
+            <Route path='/' element={<RecipesFeed />}/>
+            <Route path='following' element={<FollowingFeed/>}/>
+          </Route>
+
+          <Route path='recipes/:recipeId' element={<RecipeDetail />}/>
+          <Route path='recipes/:recipeId/edit' element={<EditRecipe />}/>
+
+          <Route path='profiles/:profileId' element={<ProfileLayout />}>
+            <Route path='following' element={<FollowingList />}/>
+            <Route path='followers' element={<FollowerList />}/>
+          </Route>
+
+          <Route path='settings' element={<Settings />}/> 
+        </Route>
+       
+        <Route 
+          path='/register' 
+          element={loggedIn ? <Navigate to='/' /> : <Register />}
+        />
+        <Route 
+          path='/login' 
+          element={loggedIn ? <Navigate to='/' /> : <Login />}
+        />
+      </Routes>
+    </Router>
   )
 }
 
-export default App
+export default App;
