@@ -9,9 +9,14 @@ export const AuthProvider = (props) => {
 
   useEffect(() => { 
     const token = localStorage.getItem('accessToken');
+    const user = localStorage.getItem('user'); 
 
     if (token) {
       setLoggedIn(true);
+    }
+
+    if (user) {
+      setUser(JSON.parse(user));
     }
   }, [])
 

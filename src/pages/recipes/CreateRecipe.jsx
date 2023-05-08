@@ -1,59 +1,15 @@
-import { useState, useEffect } from 'react'; 
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState } from 'react'; 
+import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { recipeValidationSchema } from '../../validation/RecipeValidation';
 import axios from 'axios'; 
 
-export default function EditRecipe() {
-  const [recipe, setRecipe] = useState('');
+export default function CreateRecipe() {
   const [responseError, setResponseError] = useState('');
   const [imgSrc, setImgSrc] = useState('');
-  const navigate = useNavigate();
-  const { recipeId } = useParams();
+  const navigate = useNavigate(); 
 
-  useEffect(() => {
-    try {
-      const fetchRecipe = async () => {
-        const response = await axios.get(`https://spice-scape-server.onrender.com/api/v1/recipes/${recipeId}`,
-      {
-      headers: { 
-        'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-        withCredentials: true
-      } 
-      }); 
-      
-        if (response.data.recipe) {
-          const { recipe } = response.data
-          setRecipe(recipe); 
-          setImgSrc(recipe.recipeImage.url);
-        } 
-      };
-
-      fetchRecipe();
-    } catch(err) {
-       if (err.response.status === 500) {
-        navigate('/');
-      }
-      console.log(err);
-    }
-
-  }, []);
-
-  if (imgSrc.startsWith('https')) {
-    fetch(imgSrc)
-    .then(response => response.blob())
-    .then(blob => {
-      const reader = new FileReader();
-      reader.readAsDataURL(blob); 
-      reader.onloadend = () => {
-        const dataUrl = reader.result; 
-        setImgSrc(dataUrl);
-      }
-    });
-  }
-
-  const editRecipe = async (values, actions) => { 
-
+  const createRecipe = async (values, actions) => {
     try {
       let recipeImage = imgSrc;    
 
@@ -62,12 +18,18 @@ export default function EditRecipe() {
       }
  
       const recipeData = {...values, recipeImage};
-      
+
+      if (!recipeImage) {
+        delete recipeData.recipeImage;
+      }
+
       if (recipeData.file) {
         delete recipeData.file;
       } 
 
-      const response = await axios.patch(`https://spice-scape-server.onrender.com/api/v1/recipes?recipeId=${recipeId}`, JSON.stringify({...recipeData}),
+      console.log(recipeData);
+
+      const response = await axios.post('https://spice-scape-server.onrender.com/api/v1/recipes', JSON.stringify({...recipeData}),
     {
       headers: { 
         'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
@@ -75,8 +37,8 @@ export default function EditRecipe() {
         withCredentials: true
       }
     }); 
-    if (response.status === 200) {
-      navigate(`/recipes/${recipeId}`);
+    if (response.status === 201) {
+      navigate('/');
     } 
 
     } catch(err) {  
@@ -84,19 +46,18 @@ export default function EditRecipe() {
     } 
   
     actions.resetForm();
-  };  
+  };
 
   const { values, errors, handleBlur, handleChange, handleSubmit, touched, isValid, dirty, setFieldValue } = useFormik({
     initialValues: { 
-      recipeTitle: recipe && recipe.recipeTitle,
-      recipeDescription: recipe && recipe.recipeDescription,
-      recipeIngredients: recipe && recipe.recipeIngredients,
-      recipeSteps: recipe && recipe.recipeSteps,
+      recipeTitle: '',
+      recipeDescription: '',
+      recipeIngredients: '',
+      recipeSteps: '',
       file: ''
     },
     validationSchema:  recipeValidationSchema,
-    onSubmit: (values, actions) => editRecipe(values, actions),
-    enableReinitialize: true
+    onSubmit: (values, actions) => createRecipe(values, actions)
   });
 
   const backgroundStyles = {
@@ -121,9 +82,9 @@ export default function EditRecipe() {
   };
 
   return (
-    <main className='recipe-revision'>
+    <main className='recipe-creation'>
 
-      <form onSubmit={(e) => handleSubmit(e)} className='recipe-revision-form'>
+      <form onSubmit={(e) => handleSubmit(e)} className='recipe-creation-form'>
 
         {responseError && <p className='response-error'>{responseError}</p>}
 
@@ -138,7 +99,7 @@ export default function EditRecipe() {
             <input 
             className='form-input file'
             id='recipe-image'
-            defaultValue={values.file} 
+            value={values.recipeImage} 
             type='file' 
             name='file'
             onChange={(e) => {
@@ -221,7 +182,7 @@ export default function EditRecipe() {
           {(errors.recipeSteps && touched.recipeSteps) && <p className='error-message'>{errors.recipeSteps}</p>}
         </div>
 
-        <button className='submit-btn' type='submit' disabled={!(isValid)}>Edit Recipe</button>
+        <button className='submit-btn' type='submit' disabled={!(isValid)}>Create Recipe</button>
 
       </form>
     </main>

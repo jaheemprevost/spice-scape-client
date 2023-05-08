@@ -14,7 +14,7 @@ export default function Home() {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/v1/recipes',
+        const response = await axios.get('https://spice-scape-server.onrender.com/api/v1/recipes',
       {
       headers: { 
         'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
@@ -40,8 +40,7 @@ export default function Home() {
     fetchRecipes();
   }, []);
 
-  const recipeElements = recipes.map(recipe => {
-    console.log(recipe);
+  const recipeElements = recipes.map(recipe => { 
     const recipeData = {
       image: recipe.recipeImage,
       name: recipe.recipeTitle,

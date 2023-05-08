@@ -11,9 +11,9 @@ export default function Login() {
 
   const { setUser, setLoggedIn } = useContext(AuthContext);
 
-  const loginUser = async (values, actions) => { 
+  const loginUser = async (values, actions) => {
     try {
-      const response = await axios.post('http://localhost:3000/api/v1/auth/login', JSON.stringify({...values}),
+      const response = await axios.post('https://spice-scape-server.onrender.com//api/v1/auth/login', JSON.stringify({...values}),
       {
         headers: {'Content-Type': 'application/json'},
         withCredentials: true
@@ -23,7 +23,8 @@ export default function Login() {
         setLoggedIn(true);
         setUser(data.user);
         localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('user', data.user); 
+        localStorage.setItem('user', JSON.stringify(data.user)); 
+        localStorage.setItem('theme', 'light');
         navigate('/');
       } 
     } catch(err) {  
@@ -66,7 +67,7 @@ export default function Login() {
             />
           </label>
 
-          {errors.email && <p className='error-message'>{errors.email}</p>}
+          {(errors.email && touched.email) && <p className='error-message'>{errors.email}</p>}
         </div>
 
         <div className='input-field'>
@@ -84,7 +85,7 @@ export default function Login() {
             />
           </label>
 
-          {errors.password && <p className='error-message'>{errors.password}</p>}
+          {(errors.password && touched.password) && <p className='error-message'>{errors.password}</p>}
         </div>
 
         <button className='submit-btn' type='submit' disabled={!(isValid && dirty)}>Log In</button>

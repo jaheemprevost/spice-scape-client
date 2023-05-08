@@ -12,13 +12,11 @@ export default function Register() {
 
   const registerUser = async (values, actions) => { 
     try {
-      const response = await axios.post('http://localhost:3000/api/v1/auth/register', JSON.stringify({...values}),
+      const response = await axios.post('https://spice-scape-server.onrender.com//api/v1/auth/register', JSON.stringify({...values}),
       {
         headers: {'Content-Type': 'application/json'} 
       }); 
-      if (response.status === 201) {
-        console.log(response.data); 
-        
+      if (response.status === 201) {  
         navigate('/login');
       } 
     } catch(err) {  
@@ -43,7 +41,7 @@ export default function Register() {
 
       <h1>SpiceScape</h1>
 
-      <form onSubmit={handleSubmit} className='register-form'>
+      <form onSubmit={(e) => handleSubmit()} className='register-form'>
         <p className='form-title'>Sign Up Form</p>
 
         {responseError && <p className='response-error'>{responseError}</p>}
@@ -63,7 +61,7 @@ export default function Register() {
             />
           </label>
 
-          {errors.username && <p className='error-message'>{errors.username}</p>}
+          {(errors.username && touched.username) && <p className='error-message'>{errors.username}</p>}
         </div>
         
 
@@ -82,7 +80,7 @@ export default function Register() {
             />
           </label>
 
-          {errors.email && <p className='error-message'>{errors.email}</p>}
+          {(errors.email && touched.email) && <p className='error-message'>{errors.email}</p>}
         </div>
        
         <div className='input-field'>
@@ -100,7 +98,7 @@ export default function Register() {
             />
           </label>
 
-          {errors.password && <p className='error-message'>{errors.password}</p>}
+          {(errors.password && touched.password) && <p className='error-message'>{errors.password}</p>}
         </div>
 
         <button className='submit-btn' disabled={!(isValid && dirty)} type='submit'>Sign Up</button>

@@ -10,7 +10,9 @@ import HomeLayout from './Layouts/HomeLayout';
 import ProfileLayout from './Layouts/ProfileLayout';
 import FollowingList from './pages/profile/FollowingList';
 import FollowerList from './pages/profile/FollowerList'; 
+import EditProfile from './pages/profile/EditProfile';
 import RecipeDetail from './pages/recipes/RecipeDetail';
+import CreateRecipe from './pages/recipes/CreateRecipe';
 import EditRecipe from './pages/recipes/EditRecipe';
 import Settings from './pages/Settings/Settings';
 
@@ -32,14 +34,17 @@ function App() {
             <Route path='following' element={<FollowingFeed/>}/>
           </Route>
 
+          <Route path='create-recipe' element={<CreateRecipe />}/>
           <Route path='recipes/:recipeId' element={<RecipeDetail />}/>
           <Route path='recipes/:recipeId/edit' element={<EditRecipe />}/>
 
-          <Route path='profiles/:profileId' element={<ProfileLayout />}>
+          <Route path='profile/:profileId' element={<ProfileLayout />}>
             <Route path='following' element={<FollowingList />}/>
             <Route path='followers' element={<FollowerList />}/>
           </Route>
 
+          <Route path='profile/:profileId/edit' element={<EditProfile/>}/>
+          
           <Route path='settings' element={<Settings />}/> 
         </Route>
        

@@ -10,7 +10,7 @@ export default function useRefreshToken() {
   const refreshAccessToken = async () => {
     
     try {
-      const response = await axios.post('http://localhost:3000/api/v1/auth/refresh', {},
+      const response = await axios.post('https://spice-scape-server.onrender.com/api/v1/auth/refresh', {},
       {
         headers: {'Content-Type': 'application/json'},
         withCredentials: true
