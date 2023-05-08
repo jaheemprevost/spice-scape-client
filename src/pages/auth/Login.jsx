@@ -13,7 +13,7 @@ export default function Login() {
 
   const loginUser = async (values, actions) => {
     try {
-      const response = await axios.post('https://spice-scape-server.onrender.com//api/v1/auth/login', JSON.stringify({...values}),
+      const response = await axios.post('https://spice-scape-server.onrender.com/api/v1/auth/login', JSON.stringify({...values}),
       {
         headers: {'Content-Type': 'application/json'},
         withCredentials: true

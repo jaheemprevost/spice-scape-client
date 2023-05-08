@@ -12,7 +12,7 @@ export default function Register() {
 
   const registerUser = async (values, actions) => { 
     try {
-      const response = await axios.post('https://spice-scape-server.onrender.com//api/v1/auth/register', JSON.stringify({...values}),
+      const response = await axios.post('https://spice-scape-server.onrender.com/api/v1/auth/register', JSON.stringify({...values}),
       {
         headers: {'Content-Type': 'application/json'} 
       }); 
