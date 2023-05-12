@@ -2,32 +2,31 @@ import { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { userLoginSchema } from '../../validation/UserValidation';
-import axios from 'axios';
+import axiosInstance from '../../services/axios';
 import { AuthContext } from '../../context/AuthProvider';
 
 export default function Login() {
   const [responseError, setResponseError] = useState('');
   const navigate = useNavigate();
 
-  const { setUser, setLoggedIn } = useContext(AuthContext);
+  const { logIn } = useContext(AuthContext);
 
   const loginUser = async (values, actions) => {
     try {
-      const response = await axios.post('https://spice-scape-server.onrender.com/api/v1/auth/login', JSON.stringify({...values}),
+      const response = await axiosInstance.post('auth/login', JSON.stringify({...values}),
       {
-        headers: {'Content-Type': 'application/json'},
-        withCredentials: true
+        headers: { 
+          'Content-Type': 'application/json'
+        }
       }); 
+      
       if (response.status === 200) {
         const { data } = response;
-        setLoggedIn(true);
-        setUser(data.user);
-        localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('user', JSON.stringify(data.user)); 
-        localStorage.setItem('theme', 'light');
+        logIn(data);
         navigate('/');
       } 
     } catch(err) {  
+      console.log(err);
       setResponseError(err.response.data.message);
     } 
   
@@ -44,7 +43,7 @@ export default function Login() {
   });
  
   return (
-    <main className='login'>
+    <main className='form-container'>
       <h1>SpiceScape</h1>
 
       <form onSubmit={(e) => handleSubmit(e)} className='login-form'>
@@ -88,7 +87,7 @@ export default function Login() {
           {(errors.password && touched.password) && <p className='error-message'>{errors.password}</p>}
         </div>
 
-        <button className='submit-btn' type='submit' disabled={!(isValid && dirty)}>Log In</button>
+        <button className='primary-light-btn' type='submit' disabled={!(isValid && dirty)}>Log In</button>
 
         <Link to='/register'>Don't have an account? Register here</Link>
       </form>

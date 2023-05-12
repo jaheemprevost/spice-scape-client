@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom'; 
 import { useFormik } from 'formik';
 import {userCreationSchema} from '../../validation/UserValidation';
-import axios from 'axios';
-
-
+import axiosInstance from '../../services/axios';
 
 export default function Register() { 
   const [responseError, setResponseError] = useState('');
@@ -12,10 +10,13 @@ export default function Register() {
 
   const registerUser = async (values, actions) => { 
     try {
-      const response = await axios.post('https://spice-scape-server.onrender.com/api/v1/auth/register', JSON.stringify({...values}),
+      const response = await axiosInstance.post('auth/register', JSON.stringify({...values}),
       {
-        headers: {'Content-Type': 'application/json'} 
+        headers: { 
+          'Content-Type': 'application/json'
+        }
       }); 
+
       if (response.status === 201) {  
         navigate('/login');
       } 
@@ -37,11 +38,11 @@ export default function Register() {
   });
     
   return (
-    <main className='registration'>
+    <main className='form-container'>
 
       <h1>SpiceScape</h1>
 
-      <form onSubmit={(e) => handleSubmit()} className='register-form'>
+      <form onSubmit={(e) => handleSubmit(e)} className='register-form'>
         <p className='form-title'>Sign Up Form</p>
 
         {responseError && <p className='response-error'>{responseError}</p>}
@@ -101,7 +102,7 @@ export default function Register() {
           {(errors.password && touched.password) && <p className='error-message'>{errors.password}</p>}
         </div>
 
-        <button className='submit-btn' disabled={!(isValid && dirty)} type='submit'>Sign Up</button>
+        <button className='primary-light-btn' disabled={!(isValid && dirty)} type='submit'>Sign Up</button>
 
         <Link to='/login'>Already have an account? Login here</Link>
       </form>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { recipeValidationSchema } from '../../validation/RecipeValidation';
-import axios from 'axios'; 
+import axiosInstance from '../../services/axios';
 
 export default function EditRecipe() {
   const [recipe, setRecipe] = useState('');
@@ -14,13 +14,7 @@ export default function EditRecipe() {
   useEffect(() => {
     try {
       const fetchRecipe = async () => {
-        const response = await axios.get(`https://spice-scape-server.onrender.com/api/v1/recipes/${recipeId}`,
-      {
-      headers: { 
-        'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-        withCredentials: true
-      } 
-      }); 
+        const response = await axiosInstance.get(`recipes/${recipeId}`); 
       
         if (response.data.recipe) {
           const { recipe } = response.data
@@ -67,17 +61,11 @@ export default function EditRecipe() {
         delete recipeData.file;
       } 
 
-      const response = await axios.patch(`https://spice-scape-server.onrender.com/api/v1/recipes?recipeId=${recipeId}`, JSON.stringify({...recipeData}),
-    {
-      headers: { 
-        'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-        'Content-Type': 'application/json',
-        withCredentials: true
-      }
-    }); 
-    if (response.status === 200) {
-      navigate(`/recipes/${recipeId}`);
-    } 
+      const response = await axiosInstance.patch(`recipes?recipeId=${recipeId}`, JSON.stringify({...recipeData})); 
+
+      if (response.status === 200) {
+        navigate(`/recipes/${recipeId}`);
+      } 
 
     } catch(err) {  
       setResponseError(err.response.data.message);
@@ -121,9 +109,9 @@ export default function EditRecipe() {
   };
 
   return (
-    <main className='recipe-revision'>
+    <main className='form-container'>
 
-      <form onSubmit={(e) => handleSubmit(e)} className='recipe-revision-form'>
+      <form onSubmit={(e) => handleSubmit(e)} className='form'>
 
         {responseError && <p className='response-error'>{responseError}</p>}
 
@@ -221,7 +209,7 @@ export default function EditRecipe() {
           {(errors.recipeSteps && touched.recipeSteps) && <p className='error-message'>{errors.recipeSteps}</p>}
         </div>
 
-        <button className='submit-btn' type='submit' disabled={!(isValid)}>Edit Recipe</button>
+        <button className='primary-light-btn' type='submit' disabled={!(isValid)}>Edit Recipe</button>
 
       </form>
     </main>

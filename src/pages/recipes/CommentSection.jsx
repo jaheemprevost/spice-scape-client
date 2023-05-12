@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useFormik } from 'formik';
 import { commentValidationSchema } from '../../validation/CommentValidation'; 
+import { ThemeContext } from '../../context/ThemeProvider';
 import Comment from './Comment';
-import axios from 'axios'; 
+import axiosInstance from '../../services/axios';
 
 export default function CommentSection({ recipeId }) {
+  const { theme } = useContext(ThemeContext);
   const [commentData, setCommentData] = useState(null);
   const [responseError, setResponseError] = useState(null);
   const [isPosting, setIsPosting] = useState(false);
@@ -14,19 +16,13 @@ export default function CommentSection({ recipeId }) {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await axios.get(`https://spice-scape-server.onrender.com/api/v1/recipes/${recipeId}/comments`,
-      {
-      headers: { 
-        'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-        withCredentials: true
-      } 
-      }); 
+        const response = await axiosInstance.get(`recipes/${recipeId}/comments`); 
       
-      if (response.data.comments) {
-        setCommentData(response.data.comments);
-      } else if (response.data.message) {
-        setCommentData(response.data.message);
-      }
+        if (response.data.comments) {
+          setCommentData(response.data.comments);
+        } else if (response.data.message) {
+          setCommentData(response.data.message);
+        }
 
       } catch(err) {
         if (err.response.status === 500) { 
@@ -42,19 +38,13 @@ export default function CommentSection({ recipeId }) {
     if (isPosting || isEditing || isDeleting) {
       const fetchComments = async () => {
         try {
-          const response = await axios.get(`https://spice-scape-server.onrender.com/api/v1/recipes/${recipeId}/comments`,
-        {
-        headers: { 
-          'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-          withCredentials: true
-        } 
-        }); 
+          const response = await axiosInstance.get(`recipes/${recipeId}/comments`); 
         
-        if (response.data.comments) {
-          setCommentData(response.data.comments);
-        } else if (response.data.message) {
-          setCommentData(response.data.message);
-        }
+          if (response.data.comments) {
+            setCommentData(response.data.comments);
+          } else if (response.data.message) {
+            setCommentData(response.data.message);
+          }
   
         } catch(err) {
           if (err.response.status === 500) { 
@@ -80,14 +70,7 @@ export default function CommentSection({ recipeId }) {
 
   const postComment = async (values, actions) => {
     try {
-      const response = await axios.post(`https://spice-scape-server.onrender.com/api/v1/recipes/${recipeId}/comments`, JSON.stringify({...values}),
-      {
-        headers: { 
-          'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-          'Content-Type': 'application/json',
-          withCredentials: true
-        } 
-      });  
+      const response = await axiosInstance.post(`recipes/${recipeId}/comments`, JSON.stringify({...values}));  
       setIsPosting(true);
     } catch(err) {  
       setResponseError(err.response.data.message);
@@ -98,15 +81,9 @@ export default function CommentSection({ recipeId }) {
   
   const deleteComment = async (commentId) => {
     try {
-      const response = await axios.delete(`https://spice-scape-server.onrender.com/api/v1/recipes?recipeId=${recipeId}&commentId=${commentId}`,
-    {
-      headers: { 
-        'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-        'Content-Type': 'application/json',
-        withCredentials: true
-      }  
-    }); 
-    setIsDeleting(true);
+      const response = await axiosInstance.delete(`recipes?recipeId=${recipeId}&commentId=${commentId}`); 
+
+      setIsDeleting(true);
     } catch(err) {
       // if (err.response.status === 401) {
       //   setUser({});
@@ -139,7 +116,7 @@ export default function CommentSection({ recipeId }) {
 
             <div className='input-field'> 
               <textarea 
-                className='form-input comment-input' 
+                className={`form-input comment-input-${theme}`} 
                 value={values.text}  
                 placeholder='Enter Comment...'
                 name='text'
@@ -150,7 +127,7 @@ export default function CommentSection({ recipeId }) {
               {errors.text && <p className='error-message'>{errors.text}</p>}
             </div>
 
-            <button type='submit' className='comment-btn' disabled={!(isValid && dirty)}>Post Comment</button>
+            <button type='submit' className='primary-light-btn' disabled={!(isValid && dirty)}>Post Comment</button>
           </form>
 
           <div className='comments'>

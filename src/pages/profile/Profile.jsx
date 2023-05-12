@@ -2,12 +2,13 @@ import {useState, useEffect, useContext} from 'react';
 import { useParams, Link, NavLink } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthProvider';
-import axios from 'axios';
-import useRefreshToken from '../../hooks/useRefreshToken';
+import { ThemeContext } from '../../context/ThemeProvider';
+import axiosInstance from '../../services/axios'; 
 
 export default function Profile() { 
   const navigate = useNavigate();
-  const {user} = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+  const { theme } = useContext(ThemeContext);
   const [profile, setProfile] = useState({
     profileImage: '',
     username: '',
@@ -20,20 +21,12 @@ export default function Profile() {
   const [isFollowing, setIsFollowing] = useState(false);
   const { profileId } = useParams();
 
-  const isCurrentUser = user.userId === profileId;
-  // useRefreshToken();
+  const isCurrentUser = user.userId === profileId; 
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get(`https://spice-scape-server.onrender.com/api/v1/profile/${profileId}`,
-        {
-          headers: { 
-            'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-            'Content-Type': 'application/json',
-            withCredentials: true
-          } 
-        }); 
+        const response = await axiosInstance.get(`profile/${profileId}`); 
 
         setProfile(response.data.user);
         setIsFollowing(response.data.isFollowing);
@@ -51,13 +44,7 @@ export default function Profile() {
 
   const followProfile = async () => {
     try {
-      const response = await axios.post(`https://spice-scape-server.onrender.com/api/v1/profile/${profileId}/follow`, {},
-    {
-    headers: { 
-      'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-      withCredentials: true
-    } 
-    }); 
+      const response = await axiosInstance.post(`profile/${profileId}/follow`, {}); 
     
     if (response.data.message) {
       setIsFollowing(true); 
@@ -72,13 +59,7 @@ export default function Profile() {
 
   const unfollowProfile = async () => {
     try {
-      const response = await axios.delete(`https://spice-scape-server.onrender.com/api/v1/profile/${profileId}/follow`,
-    {
-    headers: { 
-      'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-      withCredentials: true
-    } 
-    }); 
+      const response = await axiosInstance.delete(`profile/${profileId}/follow`); 
     
     if (response.data.message) {
       setIsFollowing(false);
@@ -92,13 +73,13 @@ export default function Profile() {
   };
 
   const followButton = isFollowing ? 
-  <button onClick={unfollowProfile} className='unfollow-btn'>Unfollow</button> :
-  <button onClick={followProfile} className='follow-btn'>Follow</button>;
+  <button onClick={unfollowProfile} className='option-btn red-accent'>Unfollow</button> :
+  <button onClick={followProfile} className='option-btn green-accent'>Follow</button>;
 
  
   return ( 
     <section className='profile'>
-      <div className='user-info'> 
+      <div className='profile-info'> 
        <img className='profile-pic' src={profile.profileImage}/>
        <p className='profile-name'>{profile.username}</p>
       </div> 
@@ -116,7 +97,7 @@ export default function Profile() {
       </div>
 
       <div className='profile-options'>
-        {isCurrentUser ? <Link to={`/profile/${profileId}/edit`}className='edit-btn'>Edit Profile</Link>: followButton}
+        {isCurrentUser ? <Link to={`/profile/${profileId}/edit`}className={`secondary-${theme}-btn`}>Edit Profile</Link>: followButton}
       </div>
 
       <p className='biography'>{profile.biography}</p>

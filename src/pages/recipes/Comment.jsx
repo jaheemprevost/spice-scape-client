@@ -3,13 +3,15 @@ import { Link, useParams } from "react-router-dom";
 import { useFormik } from "formik";
 import { commentValidationSchema } from "../../validation/CommentValidation";
 import { AuthContext } from "../../context/AuthProvider";
-import axios from 'axios';
+import { ThemeContext } from "../../context/ThemeProvider";
+import axiosInstance from '../../services/axios';
 
 export default function Comment(props) {
+  const { user } = useContext(AuthContext);
+  const { theme } = useContext(ThemeContext);
   const { recipeId } = useParams();
   const [responseError, setResponseError] = useState(null);
   const [modifyingComment, setModifyingComment] = useState(false);
-  const { user } = useContext(AuthContext);
   const { comment, commentId, userInfo: {username, profileImage, id}, setIsEditing, deleteComment} = props;
   const isOwnComment = user.userId === id;
 
@@ -32,15 +34,9 @@ export default function Comment(props) {
   const editComment = async (values, actions) => {
     try {
       setIsEditing(true);
-      const response = await axios.patch(`https://spice-scape-server.onrender.com/api/v1/recipes?recipeId=${recipeId}&commentId=${commentId}`, JSON.stringify({...values}),
-    {
-      headers: { 
-        'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-        'Content-Type': 'application/json',
-        withCredentials: true
-      }  
-    }); 
-    setModifyingComment(false);
+      const response = await axiosInstance.patch(`recipes?recipeId=${recipeId}&commentId=${commentId}`, JSON.stringify({...values}));
+       
+      setModifyingComment(false);
     } catch(err) {
       // if (err.response.status === 401) {
       //   setUser({});
@@ -55,17 +51,18 @@ export default function Comment(props) {
   }
 
   return (
-    <div className='comment'>
+    <div className={`comment-${theme}`}>
       <div className='user-info'>
         <img src={profileImage} className='user-image' alt={username} />
         <p className='user-name'><Link to={`/profile/${id}`}>{username}</Link></p>
-      </div>
-      {isOwnComment && 
+
+        {isOwnComment && 
           <div className='comment-options'> 
-            <button onClick={handleEdit} className='edit-btn'>Edit</button>
-            <button onClick={() => deleteComment(commentId)} className='delete-btn'>Delete</button>
+            <button onClick={handleEdit} className={`secondary-${theme}-btn`}>Edit</button>
+            <button onClick={() => deleteComment(commentId)} className='option-btn red-accent'>Delete</button>
           </div>
         }
+      </div>
 
       {!modifyingComment && <p className='comment-text'>{comment}</p>} 
 
@@ -76,7 +73,7 @@ export default function Comment(props) {
 
         <div className='input-field'> 
           <textarea 
-            className='form-input comment-input edit-comment' 
+            className={`form-input comment-input-${theme} edit-comment-${theme}`} 
             value={values.text}  
             placeholder='Enter Comment...'
             name='text'
@@ -87,8 +84,8 @@ export default function Comment(props) {
           {errors.text && <p className='error-message'>{errors.text}</p>}
         </div>
 
-        <button className='comment-btn' disabled={!(isValid && dirty)}>Post Comment</button>
-        <button onClick={handleClose} className='close-btn'>Close</button>
+        <button className='primary-light-btn' disabled={!(isValid && dirty)}>Post Comment</button>
+        <button onClick={handleClose} className='primary-light-btn red-accent'>Close</button>
       </form>
       }
     </div>

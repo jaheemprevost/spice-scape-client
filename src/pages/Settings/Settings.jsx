@@ -1,41 +1,45 @@
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeProvider";
-import { AuthContext } from "../../context/AuthProvider";
-import axios from "axios"; 
+import { AuthContext } from "../../context/AuthProvider"; 
+import axiosInstance from '../../services/axios';
 
 export default function Settings() {
-  const { setUser, setLoggedIn } = useContext(AuthContext);
+  const { loggedIn, logOut } = useContext(AuthContext);
   const { theme, setTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
-  const toggleTheme = () => {
+  if (!loggedIn) {
+    logOut();
+    navigate('/login');
+  }
 
+  const toggleTheme = () => { 
+    if (theme === 'light') {
+      setTheme('dark');
+      localStorage.setItem('theme', 'dark');
+    } else if (theme === 'dark') {
+      setTheme('light');
+      localStorage.setItem('theme', 'light');
+    }
   };
 
-  const logoutUser = async () => {
+  const deleteProfile = async () => {
     try {
-      const response = await axios.post('https://spice-scape-server.onrender.com/api/v1/auth/logout', {},
-      {
-        headers: { 
-          'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-          'Content-Type': 'application/json',
-          withCredentials: true
-        }  
-      }); 
-      if (response.status === 200) {
-        setLoggedIn(false);
-        setUser({});
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('user');
-        navigate('/login');
+
+      const response = await axiosInstance.delete(`profile/${user.userId}`); 
+      
+      logOut();
+    } catch(err) {
+       if (err.response.status === 403) { 
+        logOut();
+       } else if (err.response.status === 403) {
+        navigate('/not-authorized');
+       } else if (err.response.status === 500) {
+        navigate('/something-wrong');
       } 
-      console.log(response.status)
-    } catch(err) {  
-      console.log('Something went wrong.');
-      console.log(err.response.data);
-    } 
-  };
+    }
+  } 
 
   return (
     <main className="settings">
@@ -43,10 +47,13 @@ export default function Settings() {
 
       <div className="theme-setting">
         <p>Dark Mode</p>
-        <p>{theme === 'dark' ? 'Enabled': 'Disabled'}</p>
+        
+        {theme === 'dark' ? <p className='enabled' onClick={toggleTheme}>Enabled</p> 
+        : <p className='disabled' onClick={toggleTheme}>Disabled</p>}
 
       </div>
-      <button className='logout-btn' onClick={logoutUser}>Log Out</button>
+      <button className='delete-profile' onClick={deleteProfile}>Delete Profile</button>
+      <button className={`logout-${theme}-btn`} onClick={logOut}>Log Out</button>
     </main>
   )
 }

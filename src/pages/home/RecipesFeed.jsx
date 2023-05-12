@@ -1,37 +1,31 @@
 import {useState, useEffect, useContext} from 'react';
 import { useNavigate } from 'react-router-dom';
-import useRefreshToken from '../../hooks/useRefreshToken';
 import { AuthContext }  from '../../context/AuthProvider';
-import axios from 'axios';
+import axiosInstance from '../../services/axios';
 import Recipe from '../recipes/Recipe'
 
 export default function Home() {
   const navigate = useNavigate();
-  const [recipes, setRecipes] = useState([]);
-  const {loggedIn, setLoggedIn, setUser} = useContext(AuthContext);
-  useRefreshToken();
+  const [recipes, setRecipes] = useState(null);
+  const [message, setMessage] = useState('');
+  const { logOut } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await axios.get('https://spice-scape-server.onrender.com/api/v1/recipes',
-      {
-      headers: { 
-        'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-        withCredentials: true
-      } 
-      }); 
-      
-      if (response.data.recipeTiles) {
-        setRecipes(response.data.recipeTiles);
-      } else {
-        setRecipes(response.data.message);
-      }
+        const response = await axiosInstance.get('recipes'); 
+
+        const {recipeTiles, message} = response.data ?? {};
+
+        if (recipeTiles) {
+          setRecipes(recipeTiles);
+        } else if (message) {
+          setMessage(message);
+        }
+
       } catch(err) {
         if (err.response.status === 401) {
-          setUser({});
-          setLoggedIn(false);
-          localStorage.removeItem('accessToken');
+          logOut();
           navigate('/login');
         }
       }
@@ -40,7 +34,7 @@ export default function Home() {
     fetchRecipes();
   }, []);
 
-  const recipeElements = recipes.map(recipe => { 
+  const recipeElements = recipes && recipes.map(recipe => { 
     const recipeData = {
       image: recipe.recipeImage,
       name: recipe.recipeTitle,
@@ -56,7 +50,7 @@ export default function Home() {
   return (
     <>  
       <div className='recipes'>
-        {recipes && recipeElements}
+        {recipes ? recipeElements : message}
       </div>
     </>
   )

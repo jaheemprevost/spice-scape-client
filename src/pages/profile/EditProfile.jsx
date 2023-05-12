@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { userRevisionSchema } from '../../validation/UserValidation';
-import axios from 'axios'; 
+import axiosInstance from '../../services/axios'; 
 
 export default function EditProfile() {
   const [profile, setProfile] = useState({
@@ -20,13 +20,7 @@ export default function EditProfile() {
   useEffect(() => {
     try {
       const fetchProfile = async () => {
-        const response = await axios.get(`https://spice-scape-server.onrender.com/api/v1/profile/${profileId}`,
-      {
-      headers: { 
-        'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-        withCredentials: true
-      } 
-      }); 
+        const response = await axiosInstance.get(`profile/${profileId}`); 
       
         if (response.data.user) {
           const { user } = response.data
@@ -75,14 +69,7 @@ export default function EditProfile() {
         delete profileData.file;
       } 
 
-      const response = await axios.patch(`https://spice-scape-server.onrender.com/api/v1/profile/${profileId}`, JSON.stringify({...profileData}),
-    {
-      headers: { 
-        'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-        'Content-Type': 'application/json',
-        withCredentials: true
-      }
-    }); 
+      const response = await axiosInstance.patch(`profile/${profileId}`, JSON.stringify({...profileData})); 
     if (response.status === 200) {
       navigate(`/profile/${profileId}`);
     } 
@@ -127,9 +114,9 @@ export default function EditProfile() {
   };
 
   return (
-    <main className='profile-revision'>
+    <main className='form-container'>
 
-      <form onSubmit={(e) => handleSubmit(e)} className='profile-revision-form'>
+      <form onSubmit={(e) => handleSubmit(e)} className='form'>
 
         {responseError && <p className='response-error'>{responseError}</p>}
 
@@ -193,7 +180,7 @@ export default function EditProfile() {
           {(errors.biography && touched.biography) && <p className='error-message'>{errors.biography}</p>}
         </div>
 
-        <button className='submit-btn' type='submit' disabled={!(isValid)}>Edit Profile</button>
+        <button className='primary-light-btn' type='submit' disabled={!(isValid)}>Edit Profile</button>
 
       </form>
     </main>

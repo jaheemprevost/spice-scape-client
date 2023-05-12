@@ -2,34 +2,25 @@ import { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthProvider';
-import { useFormik } from 'formik';
-import { commentValidationSchema } from '../../validation/CommentValidation'; 
-import useRefreshToken from '../../hooks/useRefreshToken';
-import Comment from './Comment';
-import axios from 'axios'; 
+import { ThemeContext } from '../../context/ThemeProvider';
+import axiosInstance from '../../services/axios';
 import CommentSection from './CommentSection';
 
 export default function RecipeDetail() {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+  const { theme } = useContext(ThemeContext);
   const [recipe, setRecipe] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false); 
   const [showComments, setShowComments] = useState(false);
   const [isOwnRecipe, setIsOwnRecipe] = useState(false);
 
   const { recipeId } = useParams(); 
-  useRefreshToken();
 
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const response = await axios.get(`https://spice-scape-server.onrender.com/api/v1/recipes/${recipeId}`,
-      {
-      headers: { 
-        'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-        withCredentials: true
-      } 
-      }); 
+        const response = await axiosInstance.get(`recipes/${recipeId}`); 
       
       if (response.data.recipe) {
         setRecipe(response.data.recipe);
@@ -41,7 +32,7 @@ export default function RecipeDetail() {
         if (err.response.status === 500) { 
           navigate('/something-wrong');
         } else if (err.response.status === 404) {
-          navigate('/not-found')
+          navigate('/not-found');
         }
       }
     }
@@ -51,17 +42,11 @@ export default function RecipeDetail() {
  
   const favoriteRecipe = async () => {
     try {
-      const response = await axios.post(`https://spice-scape-server.onrender.com/api/v1/recipes/${recipeId}/favorite`, {},
-    {
-    headers: { 
-      'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-      withCredentials: true
-    } 
-    }); 
+      const response = await axiosInstance.post(`recipes/${recipeId}/favorite`, {}); 
     
-    if (response.data.message) {
-      setIsFavorite(true); 
-    }
+      if (response.data.message) {
+        setIsFavorite(true); 
+      }
 
     } catch(err) {
       if (err.response.status === 500) { 
@@ -72,17 +57,11 @@ export default function RecipeDetail() {
 
   const unfavoriteRecipe = async () => {
     try {
-      const response = await axios.delete(`https://spice-scape-server.onrender.com/api/v1/recipes/${recipeId}/favorite`,
-    {
-    headers: { 
-      'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-      withCredentials: true
-    } 
-    }); 
+      const response = await axiosInstance.delete(`recipes/${recipeId}/favorite`); 
     
-    if (response.data.message) {
-      setIsFavorite(false);
-    }
+      if (response.data.message) {
+        setIsFavorite(false);
+      }
 
     } catch(err) {
       if (err.response.status === 500) { 
@@ -93,13 +72,7 @@ export default function RecipeDetail() {
 
   const deleteRecipe = async () => {
     try {
-      const response = await axios.delete(`https://spice-scape-server.onrender.com/api/v1/recipes?recipeId=${recipeId}`,
-    {
-    headers: { 
-      'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-      withCredentials: true
-    } 
-    }); 
+      const response = await axiosInstance.delete(`recipes?recipeId=${recipeId}`); 
     
     if (response.status === 200) {
       navigate('/');
@@ -122,14 +95,14 @@ export default function RecipeDetail() {
   };
 
   const favoriteButton = isFavorite ? 
-   <button onClick={unfavoriteRecipe} className='unfavorite-btn'>Unfavorite</button> :
-   <button onClick={favoriteRecipe} className='favorite-btn'>Favorite</button>;
+   <button onClick={unfavoriteRecipe} className='option-btn red-accent'>Unfavorite</button> :
+   <button onClick={favoriteRecipe} className='option-btn green-accent'>Favorite</button>;
 
   return (
     <>
       {recipe && <div className='recipe'>
         <div className='options'>
-          <Link className='back-btn' to='/'>Back</Link>
+          <Link className={`secondary-${theme}-btn`} to='/'>Back</Link>
 
           {isOwnRecipe ? 
             <div className='options'>
@@ -162,7 +135,7 @@ export default function RecipeDetail() {
           <p>{recipe.recipeSteps}</p>
         </div>
 
-        <button onClick={() => setShowComments(prevState => !prevState)} className='show-comments'>{showComments ? 'Hide' : 'Show'} Comments</button>
+        <button onClick={() => setShowComments(prevState => !prevState)} className={`show-comments-${theme}`}>{showComments ? 'Hide' : 'Show'} Comments</button>
 
 
       {showComments &&  <CommentSection recipeId={recipeId}/>}

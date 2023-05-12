@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { recipeValidationSchema } from '../../validation/RecipeValidation';
-import axios from 'axios'; 
+import axiosInstance from '../../services/axios';
 
 export default function CreateRecipe() {
   const [responseError, setResponseError] = useState('');
@@ -26,17 +26,8 @@ export default function CreateRecipe() {
       if (recipeData.file) {
         delete recipeData.file;
       } 
-
-      console.log(recipeData);
-
-      const response = await axios.post('https://spice-scape-server.onrender.com/api/v1/recipes', JSON.stringify({...recipeData}),
-    {
-      headers: { 
-        'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
-        'Content-Type': 'application/json',
-        withCredentials: true
-      }
-    }); 
+      
+      const response = await axiosInstance.post('recipes', JSON.stringify({...recipeData})); 
     if (response.status === 201) {
       navigate('/');
     } 
@@ -82,9 +73,9 @@ export default function CreateRecipe() {
   };
 
   return (
-    <main className='recipe-creation'>
+    <main className='form-container'>
 
-      <form onSubmit={(e) => handleSubmit(e)} className='recipe-creation-form'>
+      <form onSubmit={(e) => handleSubmit(e)} className='form'>
 
         {responseError && <p className='response-error'>{responseError}</p>}
 
@@ -182,7 +173,7 @@ export default function CreateRecipe() {
           {(errors.recipeSteps && touched.recipeSteps) && <p className='error-message'>{errors.recipeSteps}</p>}
         </div>
 
-        <button className='submit-btn' type='submit' disabled={!(isValid)}>Create Recipe</button>
+        <button className='primary-light-btn' type='submit' disabled={!(isValid)}>Create Recipe</button>
 
       </form>
     </main>
