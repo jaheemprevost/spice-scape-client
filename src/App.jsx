@@ -45,10 +45,11 @@ function App() {
             <Route path='recipes/:recipeId/edit' element={<EditRecipe />}/>
 
             <Route path='profile/:profileId' element={<ProfileLayout />}>
-              <Route path='following' element={<FollowingList />}/>
-              <Route path='followers' element={<FollowerList />}/>
+              
             </Route>
 
+            <Route path='profile/:profileId/following' element={<FollowingList />}/>
+            <Route path='profile/:profileId/followers' element={<FollowerList />}/>
             <Route path='profile/:profileId/edit' element={<EditProfile/>}/>
             
             <Route path='settings' element={<Settings />}/> 

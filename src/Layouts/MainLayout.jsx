@@ -10,7 +10,7 @@ export default function MainLayout() {
   return (
     <>
       <header className={`home-header-${theme}`}>
-          <h1 className="logo-text">SpiceScape</h1>
+          <p className="logo-text">SpiceScape</p>
       </header>
       
       <Outlet />

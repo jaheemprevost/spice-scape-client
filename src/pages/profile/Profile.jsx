@@ -9,13 +9,7 @@ export default function Profile() {
   const { user, logOut } = useContext(AuthContext);
   const { theme } = useContext(ThemeContext); 
   const navigate = useNavigate();
-  const [profile, setProfile] = useState({
-    profileImage: '',
-    username: '',
-    followerCount: 0,
-    followingCount: 0,
-    biography: ''
-  });
+  const [profile, setProfile] = useState(null);
   const [recipes, setRecipes] = useState([]);
   const [comments, setComments] = useState([]);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -97,29 +91,32 @@ export default function Profile() {
 
  
   return ( 
-    <section className='profile'>
-      <div className='profile-info'> 
-       <img className='profile-pic' src={profile.profileImage}/>
-       <p className='profile-name'>{profile.username}</p>
-      </div> 
+    <>
+      {profile && <section className='profile'>
+        <div className='profile-info'> 
+        <img className='profile-pic' src={profile.profileImage}/>
+        <p className='profile-name'>{profile.username}</p>
+        </div> 
 
-      <div className='profile-statistics'>
-        <div className='followers'>
-          <p>Followers</p>
-          <p className='follower-count'>{profile.followerCount}</p>
+        <div className='profile-statistics'>
+          <div className='followers'>
+            <Link to={`/profile/${profileId}/followers`}>Followers</Link>
+            <p className='follower-count'>{profile.followerCount}</p>
+          </div>
+          
+          <div className='following'>
+            <Link to={`/profile/${profileId}/following`}>Following</Link>
+            <p className='following-count'>{profile.followingCount}</p>
+          </div>
         </div>
-        
-        <div className='following'>
-          <p>Following</p>
-          <p className='following-count'>{profile.followingCount}</p>
+
+        <div className='profile-options'>
+          {isCurrentUser ? <Link to={`/profile/${profileId}/edit`}className={`secondary-${theme}-btn`}>Edit Profile</Link>: followButton}
         </div>
-      </div>
 
-      <div className='profile-options'>
-        {isCurrentUser ? <Link to={`/profile/${profileId}/edit`}className={`secondary-${theme}-btn`}>Edit Profile</Link>: followButton}
-      </div>
-
-      <p className='biography'>{profile.biography}</p>
-    </section>
+        <p className='biography'>{profile.biography}</p>
+      </section>
+    }
+  </>
   )
 }

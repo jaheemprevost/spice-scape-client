@@ -15,13 +15,13 @@ export default function FollowingFeed() {
       try {
         const response = await axiosInstance.get('recipes/following-feed'); 
         
-      const { recipeTiles, message } = response.data ?? {};
- 
-      if (recipeTiles) {
-        setRecipes(recipeTiles); 
-      } else if (message) {
-        setMessage(message);
-      }
+        const { recipeTiles, message } = response.data ?? {};
+  
+        if (recipeTiles) {
+          setRecipes(recipeTiles); 
+        } else if (message) {
+          setMessage(message);
+        }
 
       } catch(err) {
         if (err.response.status === 401) {
