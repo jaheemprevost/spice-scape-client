@@ -5,6 +5,8 @@ import { userRevisionSchema } from '../../validation/UserValidation';
 import axiosInstance from '../../services/axios'; 
 
 export default function EditProfile() {
+  const navigate = useNavigate();
+  const { profileId } = useParams();
   const [profile, setProfile] = useState({
     profileImage: '',
     username: '',
@@ -13,9 +15,7 @@ export default function EditProfile() {
     biography: ''
   });
   const [responseError, setResponseError] = useState('');
-  const [imgSrc, setImgSrc] = useState('');
-  const navigate = useNavigate();
-  const { profileId } = useParams();
+  const [imgSrc, setImgSrc] = useState(''); 
 
   useEffect(() => {
     try {
@@ -31,12 +31,14 @@ export default function EditProfile() {
 
       fetchProfile();
     } catch(err) {
-       if (err.response.status === 500) {
+      if (err.response.status === 500) {
         navigate('/something-wrong');
-      } else if (err.response.status = 404) {
+      } else if (err.response.status === 404) {
         navigate('/not-found')
+      } else if (err.response.status === 401) {
+        logOut();
+        navigate('/login');
       }  
-      console.log(err);
     }
 
   }, []);
@@ -51,7 +53,8 @@ export default function EditProfile() {
         const dataUrl = reader.result; 
         setImgSrc(dataUrl);
       }
-    });
+    })
+    .catch(err => navigate('/something-wrong'));
   }
   
   const editProfile = async (values, actions) => { 
@@ -70,12 +73,22 @@ export default function EditProfile() {
       } 
 
       const response = await axiosInstance.patch(`profile/${profileId}`, JSON.stringify({...profileData})); 
-    if (response.status === 200) {
+    
       navigate(`/profile/${profileId}`);
-    } 
 
-    } catch(err) {  
-      setResponseError(err.response.data.message);
+    } catch(err) {
+      if (err.response.status === 500) {
+        navigate('/something-wrong');
+      } else if (err.response.status === 404) {
+        navigate('/not-found')
+      }  else if (err.response.status === 403) {
+        navigate('/not-authorized');
+      } else if (err.response.status === 401) {
+        logOut();
+        navigate('/login');
+      } else { 
+        setResponseError(err.response.data.message);
+      } 
     } 
   
     actions.resetForm();

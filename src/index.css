@@ -662,3 +662,31 @@ textarea {
 .disabled {
   color: var(--magma-red);
 }
+
+/* Error Page */
+
+.error-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--primary-bg-purple);
+  min-height: 100vh;
+  padding: 2em 1em 0;
+  text-align: center;
+  row-gap: 1em;
+  color: var(--primary-light);
+}
+
+.error-page h2 {
+  font-size: 4.5rem;
+  margin: 0;
+}
+
+.error-page p {
+  font-size: 2rem;
+}
+
+p.error-code { 
+  font-size: 3rem;
+  font-weight: 700;
+}

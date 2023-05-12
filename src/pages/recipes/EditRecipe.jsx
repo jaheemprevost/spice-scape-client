@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'; 
+import { useState, useEffect, useContext } from 'react'; 
 import { useNavigate, useParams } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthProvider';
 import { useFormik } from 'formik';
 import { recipeValidationSchema } from '../../validation/RecipeValidation';
 import axiosInstance from '../../services/axios';
 
 export default function EditRecipe() {
+  const { logOut } = useContext(AuthContext);
   const [recipe, setRecipe] = useState('');
   const [responseError, setResponseError] = useState('');
   const [imgSrc, setImgSrc] = useState('');
@@ -25,10 +27,14 @@ export default function EditRecipe() {
 
       fetchRecipe();
     } catch(err) {
-       if (err.response.status === 500) {
-        navigate('/');
+      if (err.response.status === 500) {
+        navigate('/something-wrong');
+      } else if (err.response.status === 404) {
+        navigate('/not-found')
+      } else if (err.response.status === 401) {
+        logOut();
+        navigate('/login');
       }
-      console.log(err);
     }
 
   }, []);
@@ -43,7 +49,8 @@ export default function EditRecipe() {
         const dataUrl = reader.result; 
         setImgSrc(dataUrl);
       }
-    });
+    })
+    .catch(err => navigate('/something-wrong'));
   }
 
   const editRecipe = async (values, actions) => { 
@@ -62,13 +69,21 @@ export default function EditRecipe() {
       } 
 
       const response = await axiosInstance.patch(`recipes?recipeId=${recipeId}`, JSON.stringify({...recipeData})); 
-
-      if (response.status === 200) {
-        navigate(`/recipes/${recipeId}`);
-      } 
-
-    } catch(err) {  
-      setResponseError(err.response.data.message);
+ 
+      navigate(`/recipes/${recipeId}`); 
+    } catch(err) { 
+      if (err.response.status === 500) {
+        navigate('/something-wrong');
+      } else if (err.response.status === 404) {
+        navigate('/not-found')
+      } else if (err.response.status === 403) {
+        navigate('/not-authorized');
+      } else if (err.response.status === 401) {
+        logOut();
+        navigate('/login');
+      } else { 
+        setResponseError(err.response.data.message);
+      }  
     } 
   
     actions.resetForm();

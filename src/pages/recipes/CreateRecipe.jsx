@@ -1,10 +1,12 @@
-import { useState } from 'react'; 
-import { useNavigate, Link } from 'react-router-dom';
+import { useContext, useState } from 'react'; 
+import { useNavigate} from 'react-router-dom';
+import { AuthContext } from '../../context/AuthProvider';
 import { useFormik } from 'formik';
 import { recipeValidationSchema } from '../../validation/RecipeValidation';
 import axiosInstance from '../../services/axios';
 
 export default function CreateRecipe() {
+  const { logOut } = useContext(AuthContext);
   const [responseError, setResponseError] = useState('');
   const [imgSrc, setImgSrc] = useState('');
   const navigate = useNavigate(); 
@@ -28,12 +30,20 @@ export default function CreateRecipe() {
       } 
       
       const response = await axiosInstance.post('recipes', JSON.stringify({...recipeData})); 
-    if (response.status === 201) {
+    
       navigate('/');
-    } 
 
-    } catch(err) {  
-      setResponseError(err.response.data.message);
+    } catch(err) {
+      if (err.response.status === 500) {
+        navigate('/something-wrong');
+      } else if (err.response.status === 404) {
+        navigate('/not-found')
+      } else if (err.response.status === 401) {
+        logOut();
+        navigate('/login');
+      } else { 
+        setResponseError(err.response.data.message);
+      }  
     } 
   
     actions.resetForm();

@@ -6,10 +6,9 @@ import axiosInstance from '../../services/axios';
 import { AuthContext } from '../../context/AuthProvider';
 
 export default function Login() {
-  const [responseError, setResponseError] = useState('');
-  const navigate = useNavigate();
-
   const { logIn } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [responseError, setResponseError] = useState('');
 
   const loginUser = async (values, actions) => {
     try {
@@ -20,14 +19,15 @@ export default function Login() {
         }
       }); 
       
-      if (response.status === 200) {
-        const { data } = response;
-        logIn(data);
-        navigate('/');
-      } 
+      const { data } = response;
+      logIn(data);
+      navigate('/');
     } catch(err) {  
-      console.log(err);
-      setResponseError(err.response.data.message);
+      if (err.response.status === 500) {
+        navigate('/something-wrong');
+      } else {
+        setResponseError(err.response.data.message);
+      }
     } 
   
     actions.resetForm();

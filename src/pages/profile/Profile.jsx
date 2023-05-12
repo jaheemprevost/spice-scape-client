@@ -5,10 +5,10 @@ import { AuthContext } from '../../context/AuthProvider';
 import { ThemeContext } from '../../context/ThemeProvider';
 import axiosInstance from '../../services/axios'; 
 
-export default function Profile() { 
+export default function Profile() {
+  const { user, logOut } = useContext(AuthContext);
+  const { theme } = useContext(ThemeContext); 
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
-  const { theme } = useContext(ThemeContext);
   const [profile, setProfile] = useState({
     profileImage: '',
     username: '',
@@ -33,9 +33,14 @@ export default function Profile() {
         setRecipes(response.data.recipes);
         setComments(response.data.comments);
       } catch(err) {
-          if (err.response.status === 404) {
-            navigate('/not-found');
-          }
+        if (err.response.status === 500) {
+          navigate('/something-wrong');
+        } else if (err.response.status === 404) {
+          navigate('/not-found')
+        } else if (err.response.status === 401) {
+          logOut();
+          navigate('/login');
+        }
       }
     };
 
@@ -51,9 +56,16 @@ export default function Profile() {
     }
 
     } catch(err) {
-      if (err.response.status === 500) { 
+      if (err.response.status === 500) {
         navigate('/something-wrong');
-      } 
+      } else if (err.response.status === 404) {
+        navigate('/not-found')
+      }  else if (err.response.status === 403) {
+        navigate('/not-authorized');
+      } else if (err.response.status === 401) {
+        logOut();
+        navigate('/login');
+      }
     }
   };
 
@@ -66,8 +78,15 @@ export default function Profile() {
     }
 
     } catch(err) {
-      if (err.response.status === 500) { 
+      if (err.response.status === 500) {
         navigate('/something-wrong');
+      } else if (err.response.status === 404) {
+        navigate('/not-found')
+      }  else if (err.response.status === 403) {
+        navigate('/not-authorized');
+      } else if (err.response.status === 401) {
+        logOut();
+        navigate('/login');
       } 
     }
   };

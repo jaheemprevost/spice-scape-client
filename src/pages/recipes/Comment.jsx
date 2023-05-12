@@ -7,7 +7,7 @@ import { ThemeContext } from "../../context/ThemeProvider";
 import axiosInstance from '../../services/axios';
 
 export default function Comment(props) {
-  const { user } = useContext(AuthContext);
+  const { user, logOut } = useContext(AuthContext);
   const { theme } = useContext(ThemeContext);
   const { recipeId } = useParams();
   const [responseError, setResponseError] = useState(null);
@@ -38,14 +38,18 @@ export default function Comment(props) {
        
       setModifyingComment(false);
     } catch(err) {
-      // if (err.response.status === 401) {
-      //   setUser({});
-      //   setLoggedIn(false);
-      //   localStorage.removeItem('accessToken');
-      //   localStorage.removeItem('user');
-      //   navigate('/login');
-      // }
-      console.log(err);
+      if (err.response.status === 500) {
+        navigate('/something-wrong');
+      } else if (err.response.status === 404) {
+        navigate('/not-found')
+      } else if (err.response.status === 403) {
+        navigate('/not-authorized');
+      } else if (err.response.status === 401) {
+        logOut();
+        navigate('/login');
+      } else { 
+        setResponseError(err.response.data.message);
+      }
     }  
     actions.resetForm();
   }

@@ -5,8 +5,8 @@ import {userCreationSchema} from '../../validation/UserValidation';
 import axiosInstance from '../../services/axios';
 
 export default function Register() { 
-  const [responseError, setResponseError] = useState('');
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const [responseError, setResponseError] = useState(''); 
 
   const registerUser = async (values, actions) => { 
     try {
@@ -17,11 +17,13 @@ export default function Register() {
         }
       }); 
 
-      if (response.status === 201) {  
-        navigate('/login');
-      } 
+      navigate('/login');
     } catch(err) {  
-      setResponseError(err.response.data.message);
+      if (err.response.status === 500) {
+        navigate('/something-wrong');
+      } else {
+        setResponseError(err.response.data.message);
+      }
     }
   
     actions.resetForm();

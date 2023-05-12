@@ -1,12 +1,16 @@
 import { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { commentValidationSchema } from '../../validation/CommentValidation'; 
+import { AuthContext } from '../../context/AuthProvider';
 import { ThemeContext } from '../../context/ThemeProvider';
 import Comment from './Comment';
 import axiosInstance from '../../services/axios';
 
 export default function CommentSection({ recipeId }) {
+  const { logOut } = useContext(AuthContext);
   const { theme } = useContext(ThemeContext);
+  const navigate = useNavigate();
   const [commentData, setCommentData] = useState(null);
   const [responseError, setResponseError] = useState(null);
   const [isPosting, setIsPosting] = useState(false);
@@ -25,9 +29,14 @@ export default function CommentSection({ recipeId }) {
         }
 
       } catch(err) {
-        if (err.response.status === 500) { 
-          // navigate('/login');
-        } 
+        if (err.response.status === 500) {
+          navigate('/something-wrong');
+        } else if (err.response.status === 404) {
+          navigate('/not-found')
+        } else if (err.response.status === 401) {
+          logOut();
+          navigate('/login');
+        }  
       }
     }
     
@@ -47,8 +56,13 @@ export default function CommentSection({ recipeId }) {
           }
   
         } catch(err) {
-          if (err.response.status === 500) { 
-            // navigate('/login');
+          if (err.response.status === 500) {
+            navigate('/something-wrong');
+          } else if (err.response.status === 404) {
+            navigate('/not-found')
+          } else if (err.response.status === 401) {
+            logOut();
+            navigate('/login');
           } 
         } finally {
           setIsPosting(false);
@@ -71,9 +85,21 @@ export default function CommentSection({ recipeId }) {
   const postComment = async (values, actions) => {
     try {
       const response = await axiosInstance.post(`recipes/${recipeId}/comments`, JSON.stringify({...values}));  
+      
       setIsPosting(true);
     } catch(err) {  
-      setResponseError(err.response.data.message);
+      if (err.response.status === 500) {
+        navigate('/something-wrong');
+      } else if (err.response.status === 404) {
+        navigate('/not-found')
+      }  else if (err.response.status === 403) {
+        navigate('/not-authorized');
+      } else if (err.response.status === 401) {
+        logOut();
+        navigate('/login');
+      } else { 
+        setResponseError(err.response.data.message);
+      }
     } 
   
     actions.resetForm();
@@ -85,14 +111,16 @@ export default function CommentSection({ recipeId }) {
 
       setIsDeleting(true);
     } catch(err) {
-      // if (err.response.status === 401) {
-      //   setUser({});
-      //   setLoggedIn(false);
-      //   localStorage.removeItem('accessToken');
-      //   localStorage.removeItem('user');
-      //   navigate('/login');
-      // }
-      console.log(err);
+      if (err.response.status === 500) {
+        navigate('/something-wrong');
+      } else if (err.response.status === 404) {
+        navigate('/not-found')
+      }  else if (err.response.status === 403) {
+        navigate('/not-authorized');
+      } else if (err.response.status === 401) {
+        logOut();
+        navigate('/login');
+      }
     } 
   };
 

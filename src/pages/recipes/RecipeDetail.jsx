@@ -6,10 +6,10 @@ import { ThemeContext } from '../../context/ThemeProvider';
 import axiosInstance from '../../services/axios';
 import CommentSection from './CommentSection';
 
-export default function RecipeDetail() {
-  const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+export default function RecipeDetail() { 
+  const { logOut } = useContext(AuthContext);
   const { theme } = useContext(ThemeContext);
+  const navigate = useNavigate();
   const [recipe, setRecipe] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false); 
   const [showComments, setShowComments] = useState(false);
@@ -29,11 +29,14 @@ export default function RecipeDetail() {
       }
 
       } catch(err) {
-        if (err.response.status === 500) { 
+        if (err.response.status === 500) {
           navigate('/something-wrong');
         } else if (err.response.status === 404) {
-          navigate('/not-found');
-        }
+          navigate('/not-found')
+        } else if (err.response.status === 401) {
+          logOut();
+          navigate('/login');
+        }  
       }
     }
     
@@ -44,14 +47,19 @@ export default function RecipeDetail() {
     try {
       const response = await axiosInstance.post(`recipes/${recipeId}/favorite`, {}); 
     
-      if (response.data.message) {
-        setIsFavorite(true); 
-      }
-
+      setIsFavorite(true); 
+   
     } catch(err) {
-      if (err.response.status === 500) { 
+      if (err.response.status === 500) {
         navigate('/something-wrong');
-      } 
+      } else if (err.response.status === 404) {
+        navigate('/not-found')
+      } else if (err.response.status === 403) {
+        navigate('/not-authorized');
+      } else if (err.response.status === 401) {
+        logOut();
+        navigate('/login');
+      }  
     }
   };
 
@@ -59,13 +67,18 @@ export default function RecipeDetail() {
     try {
       const response = await axiosInstance.delete(`recipes/${recipeId}/favorite`); 
     
-      if (response.data.message) {
-        setIsFavorite(false);
-      }
+      setIsFavorite(false);
 
     } catch(err) {
-      if (err.response.status === 500) { 
+      if (err.response.status === 500) {
         navigate('/something-wrong');
+      } else if (err.response.status === 404) {
+        navigate('/not-found')
+      } else if (err.response.status === 403) {
+        navigate('/not-authorized');
+      } else if (err.response.status === 401) {
+        logOut();
+        navigate('/login');
       } 
     }
   };
@@ -74,14 +87,19 @@ export default function RecipeDetail() {
     try {
       const response = await axiosInstance.delete(`recipes?recipeId=${recipeId}`); 
     
-    if (response.status === 200) {
       navigate('/');
-    }
 
     } catch(err) {
-      if (err.response.status === 500) { 
+      if (err.response.status === 500) {
         navigate('/something-wrong');
-      }  
+      } else if (err.response.status === 404) {
+        navigate('/not-found')
+      } else if (err.response.status === 403) {
+        navigate('/not-authorized');
+      } else if (err.response.status === 401) {
+        logOut();
+        navigate('/login');
+      }   
     }
   };
 

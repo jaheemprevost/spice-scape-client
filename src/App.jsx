@@ -15,49 +15,61 @@ import RecipeDetail from './pages/recipes/RecipeDetail';
 import CreateRecipe from './pages/recipes/CreateRecipe';
 import EditRecipe from './pages/recipes/EditRecipe';
 import Settings from './pages/Settings/Settings';
+import NotFound from './pages/errors/NotFound';
+import NotAuthorized from './pages/errors/NotAuthorized';
+import SomethingWrong from './pages/errors/SomethingWrong';
+import { ThemeContext } from './context/ThemeProvider';
 
 function App() { 
   const { loggedIn } = useContext(AuthContext);
-
+  const { theme } = useContext(ThemeContext)
   return (
-    <Router>
-      <Routes>
-        <Route 
-          path='/' 
-          element={loggedIn ? <MainLayout /> : <Navigate to='/login' />}
-        >
+    <div className={`container-${theme}`}>
+      <Router>
+        <Routes>
           <Route 
-            path='' 
-            element={loggedIn ? <HomeLayout /> : <Navigate to='/login' />}
+            path='/' 
+            exact
+            element={<MainLayout />}
           >
-            <Route path='/' element={<RecipesFeed />}/>
-            <Route path='following' element={<FollowingFeed/>}/>
+            <Route 
+              path=''  
+              element={<HomeLayout />}
+            >
+              <Route path='/' element={<RecipesFeed />}/>
+              <Route path='following' element={<FollowingFeed/>}/>
+            </Route>
+
+            <Route path='create-recipe' element={<CreateRecipe />}/>
+            <Route path='recipes/:recipeId' element={<RecipeDetail />}/>
+            <Route path='recipes/:recipeId/edit' element={<EditRecipe />}/>
+
+            <Route path='profile/:profileId' element={<ProfileLayout />}>
+              <Route path='following' element={<FollowingList />}/>
+              <Route path='followers' element={<FollowerList />}/>
+            </Route>
+
+            <Route path='profile/:profileId/edit' element={<EditProfile/>}/>
+            
+            <Route path='settings' element={<Settings />}/> 
+
+            <Route path='not-found' element={<NotFound />}/>
+            <Route path='not-authorized' element={<NotAuthorized />}/>
+            <Route path='something-wrong' element={<SomethingWrong />}/>
           </Route>
+        
+          <Route 
+            path='/register' 
+            element={loggedIn ? <Navigate to='/' /> : <Register />}
+          />
+          <Route 
+            path='/login' 
+            element={loggedIn ? <Navigate to='/' /> : <Login />}
+          />
 
-          <Route path='create-recipe' element={<CreateRecipe />}/>
-          <Route path='recipes/:recipeId' element={<RecipeDetail />}/>
-          <Route path='recipes/:recipeId/edit' element={<EditRecipe />}/>
-
-          <Route path='profile/:profileId' element={<ProfileLayout />}>
-            <Route path='following' element={<FollowingList />}/>
-            <Route path='followers' element={<FollowerList />}/>
-          </Route>
-
-          <Route path='profile/:profileId/edit' element={<EditProfile/>}/>
-          
-          <Route path='settings' element={<Settings />}/> 
-        </Route>
-       
-        <Route 
-          path='/register' 
-          element={loggedIn ? <Navigate to='/' /> : <Register />}
-        />
-        <Route 
-          path='/login' 
-          element={loggedIn ? <Navigate to='/' /> : <Login />}
-        />
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
+    </div>
   )
 }
 

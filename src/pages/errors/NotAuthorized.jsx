@@ -2,7 +2,7 @@ import { useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; 
 import { AuthContext } from '../../context/AuthProvider';
 
-export default function SomethingWrong() {
+export default function NotAuthorized() {
   const { loggedIn, logOut } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -19,7 +19,7 @@ export default function SomethingWrong() {
 
       <p className='error-code'>404</p>
 
-      <p>Something went wrong. Please return home and try again.</p>
+      <p>You are not authorized to access or modify this resource. Please return home</p>
 
       <Link className='return-btn' to='/'>Return Home</Link>
     </div>

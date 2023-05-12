@@ -31,8 +31,9 @@ export default function Settings() {
       
       logOut();
     } catch(err) {
-       if (err.response.status === 403) { 
+       if (err.response.status === 401) { 
         logOut();
+        navigate('/login');
        } else if (err.response.status === 403) {
         navigate('/not-authorized');
        } else if (err.response.status === 500) {

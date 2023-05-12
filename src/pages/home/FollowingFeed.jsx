@@ -5,10 +5,10 @@ import axiosInstance from '../../services/axios';
 import Recipe from '../recipes/Recipe'
 
 export default function FollowingFeed() {
+  const { logOut } = useContext(AuthContext);
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState(null);
   const [message, setMessage] = useState('');
-  const {logOut} = useContext(AuthContext);
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -24,10 +24,11 @@ export default function FollowingFeed() {
       }
 
       } catch(err) {
-        console.log(err);
         if (err.response.status === 401) {
           logOut();
           navigate('/login');
+        } else if (err.response.status === 500) {
+          navigate('/something-wrong');
         }
       }
     }
