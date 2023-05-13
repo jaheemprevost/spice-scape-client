@@ -4,7 +4,7 @@ const devURL = 'http://localhost:3000/api/v1/';
 const prodURL = 'https://spice-scape-server.onrender.com/api/v1/';
 
 const instance = axios.create({
-  baseURL: devURL,
+  baseURL: prodURL,
   timeout: 50000, // 20 seconds
   headers: {
     'Content-Type': 'application/json',
