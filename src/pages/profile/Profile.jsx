@@ -9,9 +9,7 @@ export default function Profile() {
   const { user, logOut } = useContext(AuthContext);
   const { theme } = useContext(ThemeContext); 
   const navigate = useNavigate();
-  const [profile, setProfile] = useState(null);
-  const [recipes, setRecipes] = useState([]);
-  const [comments, setComments] = useState([]);
+  const [profile, setProfile] = useState(null); 
   const [isFollowing, setIsFollowing] = useState(false);
   const { profileId } = useParams();
 
@@ -23,9 +21,7 @@ export default function Profile() {
         const response = await axiosInstance.get(`profile/${profileId}`); 
 
         setProfile(response.data.user);
-        setIsFollowing(response.data.isFollowing);
-        setRecipes(response.data.recipes);
-        setComments(response.data.comments);
+        setIsFollowing(response.data.isFollowing); 
       } catch(err) {
         if (err.response.status === 500) {
           navigate('/something-wrong');
