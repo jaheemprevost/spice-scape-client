@@ -166,8 +166,7 @@ a {
 .logout-dark-btn {
   color: var(--powder-black);
   background-color: #ffffff; 
-}
-
+} 
 
 .return-btn {
   font-size: 2rem;
@@ -270,7 +269,7 @@ textarea {
   margin-bottom: 1em;
 }
 
-.recipes {
+.recipes, .user-comments {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -385,7 +384,7 @@ textarea {
   color : var(--primary-bg-purple);
 }
 
-/* Recipe Title Styles */
+/* Recipe Tile Styles */
 
 .recipe-tile {
   box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.25);
@@ -629,6 +628,22 @@ textarea {
   text-align: center;
 }
 
+.profile-tabs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+} 
+
+.profile-tab {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1em;
+  font-size: 1.6rem;
+  font-weight: 700;
+  flex-basis: 33.333%;
+}  
+
 .users {  
   padding: 1em;
 }
@@ -652,6 +667,20 @@ textarea {
   column-gap: 1em;
   padding: 1em;
   align-items: center;
+}  
+
+.user-comment { 
+  box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.25);
+  -webkit-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.25);
+  -moz-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.25);
+  width: 100%;
+  padding: 1em;
+}
+
+.user-comment a { 
+  display: flex;
+  flex-direction: column;
+  row-gap: 1em;
 }
 
 /* Settings Styles */

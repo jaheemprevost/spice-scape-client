@@ -5,7 +5,7 @@ export default function HomeLayout() {
     <> 
       <div className='tabs'>
         <div className="tab">
-          <NavLink to='/'>Recipes</NavLink>
+          <NavLink to='/' end={true}>Recipes</NavLink>
         </div>
 
         <div className="tab">

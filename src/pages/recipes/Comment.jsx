@@ -12,12 +12,12 @@ export default function Comment(props) {
   const { recipeId } = useParams();
   const [responseError, setResponseError] = useState(null);
   const [modifyingComment, setModifyingComment] = useState(false);
-  const { comment, commentId, userInfo: {username, profileImage, id}, setIsEditing, deleteComment} = props;
+  const { text, commentId, userInfo: {username, profileImage, id}, setIsEditing, deleteComment} = props;
   const isOwnComment = user.userId === id;
 
   const { values, errors, handleBlur, handleChange, handleSubmit, touched, isValid, dirty } = useFormik({
     initialValues: { 
-      text: comment
+      text
     },
     validationSchema:  commentValidationSchema,
     onSubmit: (values, actions) => editComment(values, actions)
@@ -68,7 +68,7 @@ export default function Comment(props) {
         }
       </div>
 
-      {!modifyingComment && <p className='comment-text'>{comment}</p>} 
+      {!modifyingComment && <p className='comment-text'>{text}</p>} 
 
       {modifyingComment && 
         <form onSubmit={(e) => handleSubmit(e)} className='comment-form'>

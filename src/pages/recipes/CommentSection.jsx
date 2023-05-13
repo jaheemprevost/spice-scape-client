@@ -11,7 +11,8 @@ export default function CommentSection({ recipeId }) {
   const { logOut } = useContext(AuthContext);
   const { theme } = useContext(ThemeContext);
   const navigate = useNavigate();
-  const [commentData, setCommentData] = useState(null);
+  const [comments, setComments] = useState(null);
+  const [message, setMessage] = useState('');
   const [responseError, setResponseError] = useState(null);
   const [isPosting, setIsPosting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -22,10 +23,12 @@ export default function CommentSection({ recipeId }) {
       try {
         const response = await axiosInstance.get(`recipes/${recipeId}/comments`); 
       
-        if (response.data.comments) {
-          setCommentData(response.data.comments);
-        } else if (response.data.message) {
-          setCommentData(response.data.message);
+        const {comments, message} = response.data ?? {};
+
+        if (comments) {
+          setComments(comments);
+        } else if (message) {
+          setMessage(message);
         }
 
       } catch(err) {
@@ -49,10 +52,12 @@ export default function CommentSection({ recipeId }) {
         try {
           const response = await axiosInstance.get(`recipes/${recipeId}/comments`); 
         
-          if (response.data.comments) {
-            setCommentData(response.data.comments);
-          } else if (response.data.message) {
-            setCommentData(response.data.message);
+          const {comments, message} = response.data ?? {};
+
+          if (comments) {
+            setComments(comments);
+          } else if (message) {
+            setMessage(message);
           }
   
         } catch(err) {
@@ -124,17 +129,11 @@ export default function CommentSection({ recipeId }) {
     } 
   };
 
-  let comments = null;
-
-  if (commentData && Array.isArray(commentData)) {
-    comments = commentData.map(comment => {
-      comment.setIsEditing = setIsEditing;
-      comment.deleteComment = deleteComment;
-      return <Comment key={comment.commentId} {...comment} />
-    });
-  } else if (commentData && !Array.isArray(commentData)) {
-    comments = commentData;
-  }
+  const commentElements = comments && comments.map(comment => {
+    comment.setIsEditing = setIsEditing;
+    comment.deleteComment = deleteComment;
+    return <Comment key={comment.commentId} {...comment} />
+  });
 
   return (
     <section className='comment-section'>
@@ -159,7 +158,7 @@ export default function CommentSection({ recipeId }) {
           </form>
 
           <div className='comments'>
-            {comments}
+          {comments ? commentElements : message}
           </div>
         </section>
   )

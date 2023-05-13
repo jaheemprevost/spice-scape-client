@@ -8,6 +8,9 @@ import {AuthContext} from './context/AuthProvider';
 import MainLayout from './Layouts/MainLayout';
 import HomeLayout from './Layouts/HomeLayout';
 import ProfileLayout from './Layouts/ProfileLayout';
+import ProfileRecipes from './pages/profile/ProfileRecipes';
+import FavoriteRecipes from './pages/profile/FavoriteRecipes';
+import ProfileComments from './pages/profile/ProfileComments';
 import FollowingList from './pages/profile/FollowingList';
 import FollowerList from './pages/profile/FollowerList'; 
 import EditProfile from './pages/profile/EditProfile';
@@ -28,8 +31,7 @@ function App() {
       <Router>
         <Routes>
           <Route 
-            path='/' 
-            exact
+            path='/'  
             element={<MainLayout />}
           >
             <Route 
@@ -45,7 +47,9 @@ function App() {
             <Route path='recipes/:recipeId/edit' element={<EditRecipe />}/>
 
             <Route path='profile/:profileId' element={<ProfileLayout />}>
-              
+              <Route path='' element={<ProfileRecipes />}/>
+              <Route path='favorite-recipes' element={<FavoriteRecipes />}/>
+              <Route path='comments' element={<ProfileComments />}/>
             </Route>
 
             <Route path='profile/:profileId/following' element={<FollowingList />}/>
