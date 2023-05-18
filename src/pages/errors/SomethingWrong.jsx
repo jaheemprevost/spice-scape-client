@@ -1,27 +1,31 @@
-import { useEffect, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; 
-import { AuthContext } from '../../context/AuthProvider';
+import { useEffect, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthProvider";
 
 export default function SomethingWrong() {
-  const { loggedIn, logOut } = useContext(AuthContext);
+  const { loggedIn, setLoggedIn, logOut } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  useEffect(() => { 
-    if (!loggedIn) {
+  useEffect(() => {
+    if (localStorage.getItem("accessToken")) {
+      setLoggedIn(true);
+    } else {
       logOut();
-      navigate('/login');
+      navigate("/login");
     }
-  }, [loggedIn]);
+  }, [localStorage.getItem("accessToken")]);
 
   return (
-    <div className='error-page'>
+    <div className="error-page">
       <h2>Error</h2>
 
-      <p className='error-code'>404</p>
+      <p className="error-code">404</p>
 
       <p>Something went wrong. Please return home and try again.</p>
 
-      <Link className='return-btn' to='/'>Return Home</Link>
+      <Link className="return-btn" to="/">
+        Return Home
+      </Link>
     </div>
-  )
+  );
 }
